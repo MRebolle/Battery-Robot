@@ -1,0 +1,147 @@
+id: example_snake
+body:
+  id          : Core
+  type        : Core
+  params:
+    red: 0.94
+    green: 0.98
+    blue: 0.05
+  children    :
+    0:
+      id          : '1'
+      type        : ActiveHinge
+      params:
+        red: 0.98
+        green: 0.98
+        blue: 0.98
+      orientation : 90
+      children    :
+        1:
+          id          : Leg00
+          type        : FixedBrick
+          params:
+            red: 0.94
+            green: 0.98
+            blue: 0.05
+          orientation : -90
+          children    :
+            1:
+              id          : '2'
+              type        : ActiveHinge
+              params:
+                red: 0.98
+                green: 0.98
+                blue: 0.98
+              children    :
+                1:
+                  id          : Leg01
+                  type        : FixedBrick
+                  params:
+                    red: 0.94
+                    green: 0.98
+                    blue: 0.05
+                  orientation : 0
+    1:
+      id          : '3'
+      type        : ActiveHinge
+      params:
+        red: 0.98
+        green: 0.98
+        blue: 0.98
+      orientation : 90
+      children    :
+        1:
+          id          : Leg10
+          type        : FixedBrick
+          params:
+            red: 0.94
+            green: 0.98
+            blue: 0.05
+          orientation : -90
+          children    :
+            1:
+              id          : '4'
+              type        : ActiveHinge
+              params:
+                red: 0.98
+                green: 0.98
+                blue: 0.98
+              children    :
+                1:
+                  id          : Leg11
+                  type        : FixedBrick
+                  params:
+                    red: 0.94
+                    green: 0.98
+                    blue: 0.05
+                  orientation : 0
+brain:
+  type: neural-network #rlpower-splines
+  neurons:
+    node1:
+      id: node1
+      layer: output
+      part_id: '1'
+      type: Oscillator
+    node2:
+      id: node2
+      layer: output
+      part_id: '2'
+      type: Oscillator
+    node3:
+      id: node3
+      layer: output
+      part_id: '3'
+      type: Oscillator
+    node4:
+      id: node4
+      layer: output
+      part_id: '4'
+      type: Oscillator
+    node-core1:
+      id: node-core1
+      layer: input
+      part_id: 'Core'
+      type: Input
+    node-core2:
+      id: node-core2
+      layer: input
+      part_id: 'Core'
+      type: Input
+    node-core3:
+      id: node-core3
+      layer: input
+      part_id: 'Core'
+      type: Input
+    node-core4:
+      id: node-core4
+      layer: input
+      part_id: 'Core'
+      type: Input
+    node-core5:
+      id: node-core5
+      layer: input
+      part_id: 'Core'
+      type: Input
+    node-core6:
+      id: node-core6
+      layer: input
+      part_id: 'Core'
+      type: Input
+  params:
+    node1:
+      amplitude: 1
+      period: 9.85019068181155
+      phase_offset: 6.28057403635594
+    node2:
+      amplitude: 1
+      period: 9.96202609362822
+      phase_offset: 6.2428221302245
+    node3:
+      amplitude: 1
+      period: 9.8865288020432
+      phase_offset: 0.0471215039001008
+    node4:
+      amplitude: 1
+      period: 9.780980199098
+      phase_offset: 6.24248670832592

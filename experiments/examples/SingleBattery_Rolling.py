@@ -11,6 +11,7 @@ from pyrevolve import revolve_bot, parser
 from pyrevolve.tol.manage import World
 from pyrevolve.util.supervisor.supervisor_multi import DynamicSimSupervisor
 from pyrevolve.evolution import fitness
+from pyrevolve.tol.manage import measures as Measures
 import numpy as np
 
 
@@ -18,12 +19,7 @@ async def run():
 
     arguments = parser.parse_args()
     working_path = "experiments/bodies/"
-    robot_file_path = []
-    if arguments.robot_name is not None:
-        for f in os.listdir(working_path):
-            if f.startswith(arguments.robot_name):
-                robot_file_path.append(f)
-
+    robot_file_path = working_path + arguments.robot_name + ".yaml"
     # Parse command line / file input arguments
     settings = parser.parse_args()
 
@@ -50,34 +46,34 @@ async def run():
     await connection.pause(False)
 
     # Load a robot from yaml
-    robot = []
-    for i in range(len(robot_file_path)):
-        r = revolve_bot.RevolveBot()
-        r.load_file(os.path.join(working_path,robot_file_path[i]))
-        r.update_substrate()
-        #await asyncio.sleep(0.1)
-        robot.append(r)
-        robot[len(robot)-1].update_substrate()
-    #    robot_manager = await connection.insert_robot(
-    #        robot[i], Vector3(0, 5*i, settings.z_start))
-    managers = []
-    xy = np.mgrid[-35:35:10, -35:35:10].reshape(2, -1).T #49 robots possible
-    for i, r in enumerate(robot):
-         managers.append(await connection.insert_robot(
-                     r, Vector3(xy[i, 0], xy[i, 1], settings.z_start)))#, life_timeout=60))
+    robot = revolve_bot.RevolveBot()
+    robot.load_file(robot_file_path)
+    robot.update_substrate()
 
-    status = 'dead' if managers[-1].dead else 'alive'
+    # Insert the robot in the simulator
+    robot_manager = await connection.insert_robot(robot, Vector3(0, 0, settings.z_start))
+
+    # Start a run loop to do some stuff
+    status = 'dead' if robot_manager.dead else 'alive'
 
     while status is 'alive':
-        status = 'dead' if managers[-1].dead else 'alive'
+        status = 'dead' if robot_manager.dead else 'alive'
+        if robot_manager._orientations:
+            orientation_roll = []
+            orientation_pitch =[]
+            for i in robot_manager._orientations:
+                orientation_roll.append(i[0])
+                orientation_pitch.append(i[1])
+            if max(map(abs, orientation_roll)) > 2.4:
+                print("They see me rolling! They hating")
+            if max(map(abs, orientation_pitch)) > 2.4:
+                print("It is pitching!")
         print(f"Robot is {status}")
+        print(f"The balance is: {Measures.head_balance(robot_manager)}")
         await asyncio.sleep(1)
 
-    fitnesses=[] #Hobbitses :)
-    fitnesses_hill = []
-    for i in range(len(robot)):
-        fitnesses.append(fitness.displacement_velocity(managers[i], robot[i]))
-        fitnesses_hill.append(fitness.displacement_velocity_hill(managers[i], robot[i]))
+    fitnesses = fitness.displacement_velocity(managers[i], robot[i])
+    fitnesses_hill = fitness.displacement_velocity_hill(managers[i], robot[i])
     out_data = [fitnesses, fitnesses_hill]
 
     print(f"**The Data is: {out_data} \n")

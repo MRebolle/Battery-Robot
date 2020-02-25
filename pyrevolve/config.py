@@ -85,6 +85,12 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '--robot_name',
+    default='spider', type=str,
+    help="select robot"
+)
+
+parser.add_argument(
     '--test-robot',
     default=None, type=str,
     help="Alternative to --manager. Start a simulation with a single robot instead of running evolution."
