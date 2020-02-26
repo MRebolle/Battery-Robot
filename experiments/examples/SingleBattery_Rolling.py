@@ -6,6 +6,7 @@ This script loads a robot.yaml file and inserts it into the simulator.
 import os
 import sys
 import asyncio
+import math
 from pyrevolve.SDF.math import Vector3
 from pyrevolve import revolve_bot, parser
 from pyrevolve.tol.manage import World
@@ -59,18 +60,20 @@ async def run():
     while status is 'alive':
         status = 'dead' if robot_manager.dead else 'alive'
         if robot_manager._orientations:
-            orientation_roll = []
-            orientation_pitch =[]
+            orientation_roll = 0
+            orientation_pitch = 0
+            steps = len(robot_manager._orientations)
             for i in robot_manager._orientations:
-                orientation_roll.append(i[0])
-                orientation_pitch.append(i[1])
-            if max(map(abs, orientation_roll)) > 2.4:
-                print("They see me rolling! They hating")
-            if max(map(abs, orientation_pitch)) > 2.4:
-                print("It is pitching!")
+                #radians to degree -> X*180/pi
+                orientation_roll = orientation_roll + (abs(i[0])*(180/math.pi))
+                orientation_pitch = orientation_pitch + (abs(i[1])*(180/math.pi))
+            print(f"The final roll is {orientation_roll/(steps *180)} and "
+                  f"The final pitch is {orientation_pitch/(steps*180)}")
+        if orientation_roll> 1.0:
+            print("The robot is rolling")
         print(f"Robot is {status}")
         print(f"The balance is: {Measures.head_balance(robot_manager)}")
-        await asyncio.sleep(1)
+        await asyncio.sleep(2)
 
     fitnesses = fitness.displacement_velocity(managers[i], robot[i])
     fitnesses_hill = fitness.displacement_velocity_hill(managers[i], robot[i])
