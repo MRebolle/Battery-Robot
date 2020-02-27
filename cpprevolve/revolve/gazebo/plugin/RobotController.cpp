@@ -24,6 +24,7 @@
 #include <revolve/gazebo/motors/MotorFactory.h>
 #include <revolve/gazebo/sensors/SensorFactory.h>
 #include <revolve/gazebo/brains/Brains.h>
+#include <revolve/gazebo/battery/Battery.h>
 
 #include "RobotController.h"
 
@@ -62,13 +63,6 @@ void RobotController::Load(
   this->node_.reset(new gz::transport::Node());
   this->node_->Init();
 
-  // Subscribe to robot battery state updater
-  this->batterySetSub_ = this->node_->Subscribe(
-      "~/battery_level/request",
-      &RobotController::UpdateBattery,
-      this);
-  this->batterySetPub_ = this->node_->Advertise< gz::msgs::Response >(
-      "~/battery_level/response");
 
   if (not _sdf->HasElement("rv:robot_config"))
   {
@@ -86,6 +80,9 @@ void RobotController::Load(
     this->actuationTime_ = 1.0 / updateRate;
   }
 
+  // Call the battery loader
+  this->LoadBattery(robotConfiguration);
+
   // Load motors
   this->motorFactory_ = this->MotorFactory(_parent);
   this->LoadActuators(robotConfiguration);
@@ -98,39 +95,8 @@ void RobotController::Load(
   // can potentially be reordered.
   this->LoadBrain(robotConfiguration);
 
-  // Call the battery loader
-  this->LoadBattery(robotConfiguration);
-
   // Call startup function which decides on actuation
   this->Startup(_parent, _sdf);
-}
-
-/////////////////////////////////////////////////
-void RobotController::UpdateBattery(ConstRequestPtr &_request)
-{
-  if (_request->data() not_eq this->model_->GetName() and
-      _request->data() not_eq this->model_->GetScopedName())
-  {
-    return;
-  }
-
-  gz::msgs::Response resp;
-  resp.set_id(_request->id());
-  resp.set_request(_request->request());
-
-  if (_request->request() == "set_battery_level")
-  {
-    resp.set_response("success");
-    this->SetBatteryLevel(_request->dbl_data());
-  }
-  else
-  {
-    std::stringstream ss;
-    ss << this->BatteryLevel();
-    resp.set_response(ss.str());
-  }
-
-  batterySetPub_->Publish(resp);
 }
 
 /////////////////////////////////////////////////
@@ -149,7 +115,7 @@ void RobotController::LoadActuators(const sdf::ElementPtr _sdf)
     auto servomotor = actuators->GetElement("rv:servomotor");
     while (servomotor)
     {
-      auto servomotorObj = this->motorFactory_->Create(servomotor);
+      auto servomotorObj = this->motorFactory_->Create(servomotor, this->battery_);
       motors_.push_back(servomotorObj);
       servomotor = servomotor->GetNextElement("rv:servomotor");
     }
@@ -211,13 +177,11 @@ void RobotController::LoadBrain(const sdf::ElementPtr _sdf)
   }
   else if ("rlpower" == learner and "spline" == controller)
   {
-    if (not motors_.empty()) {
-        brain_.reset(new RLPower(this->model_, brain, motors_, sensors_));
-    }
+    brain_.reset(new RLPower(this->model_, brain, motors_, sensors_));
   }
   else if ("bo" == learner and "cpg" == controller)
   {
-    brain_.reset(new DifferentialCPG(this->model_, _sdf, motors_, sensors_));
+    brain_.reset(new DifferentialCPG(this->model_, _sdf, motors_, sensors_, this->battery_));
   }
   else
   {
@@ -251,10 +215,22 @@ void RobotController::CheckUpdate(const ::gazebo::common::UpdateInfo _info)
 /// Default update function simply tells the brain to perform an update
 void RobotController::DoUpdate(const ::gazebo::common::UpdateInfo _info)
 {
+    ///TODO fix this when you have the right amount of initial charge for robots
+//    if (battery_->current_charge < 0)
+//    {
+//        std::exit(0);
+//    }
+
+
   auto currentTime = _info.simTime.Double() - initTime_;
 
-  if (brain_)
-    brain_->Update(motors_, sensors_, currentTime, actuationTime_);
+  /// exits out of simulation after 30 mins of simulation time
+//  if (initTime_ > 30)
+//  {
+//      std::exit(0);
+//  }
+  this->brain_->Update(motors_, sensors_, currentTime, actuationTime_);
+  this->battery_->Update(currentTime, actuationTime_);
 }
 
 /////////////////////////////////////////////////
@@ -262,26 +238,20 @@ void RobotController::LoadBattery(const sdf::ElementPtr _sdf)
 {
   if (_sdf->HasElement("rv:battery"))
   {
-    this->batteryElem_ = _sdf->GetElement("rv:battery");
-  }
-}
+    sdf::ElementPtr batteryElem = _sdf->GetElement("rv:battery");
+    double battery_initial_charge;
+    try {
+        battery_initial_charge = std::stod(
+                batteryElem->GetAttribute("initial_charge")->GetAsString()
+        );
+    } catch(std::invalid_argument &e) {
+        std::clog << "Initial charge of the robot not set, using 0.0" << std::endl;
+        battery_initial_charge = 0.0;
+    }
+    this->battery_.reset(new ::revolve::gazebo::Battery(battery_initial_charge)); // set initial battery (joules)
+    this->battery_->UpdateParameters(batteryElem);
+    this->battery_->ResetVoltage();
+    this->battery_->robot_name = this->model_->GetName();
 
-/////////////////////////////////////////////////
-double RobotController::BatteryLevel()
-{
-  if (not batteryElem_ or not batteryElem_->HasElement("rv:level"))
-  {
-    return 0.0;
-  }
-
-  return batteryElem_->GetElement("rv:level")->Get< double >();
-}
-
-/////////////////////////////////////////////////
-void RobotController::SetBatteryLevel(double _level)
-{
-  if (batteryElem_ and batteryElem_->HasElement("rv:level"))
-  {
-    batteryElem_->GetElement("rv:level")->Set(_level);
   }
 }
