@@ -69,8 +69,6 @@ async def run():
                 orientation_pitch = orientation_pitch + (abs(i[1])*(180/math.pi))
             print(f"The final roll is {orientation_roll/(steps *180)} and "
                   f"The final pitch is {orientation_pitch/(steps*180)}")
-        if orientation_roll> 1.0:
-            print("The robot is rolling")
         print(f"Robot is {status}")
         print(f"The balance is: {Measures.head_balance(robot_manager)}")
         await asyncio.sleep(2)
