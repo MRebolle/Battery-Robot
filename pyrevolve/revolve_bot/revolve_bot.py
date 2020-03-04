@@ -35,7 +35,7 @@ class RevolveBot:
         self._brain_measurements = None
         self._behavioural_measurements = None
         self.self_collide = self_collide
-        self.battery_level = 0.0
+        self.battery_level = 100.0
 
     @property
     def id(self):
