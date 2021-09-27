@@ -23,6 +23,7 @@ from pyrevolve.evolution.selection import ranking_selection
 import pprint
 
 
+
 class PopulationConfig:
     def __init__(self,
                  population_size: int,
@@ -765,4 +766,3 @@ class Population:
                                                                   final_season)
 
         print('> Finished fitness consolidation.')
-
