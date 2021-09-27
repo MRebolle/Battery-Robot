@@ -128,7 +128,18 @@ void PositionMotor::DoUpdate(const ::gazebo::common::Time &_simTime)
   }
 
   auto error = position - this->positionTarget_;
-  auto cmd = this->pid_.Update(error, stepTime);
+  auto cmd = this->pid_.Update(error, stepTime); // angular velocity TODO this is targeted velocity
+
+  if (this->battery_)
+  {
+    ::gazebo::physics::JointWrench jointWrench = this->joint_->GetForceTorque(0);
+
+    // power is joule per second = N (torque) * m/s (angular velocity)
+    double angularVelocity = this->joint_->GetVelocity(0);
+    double power = -abs(angularVelocity * jointWrench.body1Torque.Length());
+
+    this->battery_->SetPowerLoad(this->consumerId_ ,power);
+  }
 
   this->joint_->SetParam("vel", 0, cmd);
 }

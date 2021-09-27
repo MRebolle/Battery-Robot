@@ -165,7 +165,7 @@ class WorldManager(manage.WorldManager):
     async def create(
             cls,
             world_address=("127.0.0.1", 11345),
-            pose_update_frequency=10
+            pose_update_frequency=20
     ):
         """
         Coroutine to instantiate a Revolve.Angle WorldManager
@@ -214,10 +214,7 @@ class WorldManager(manage.WorldManager):
         #     self._update_contacts
         # )
 
-        # Awaiting this immediately will lock the program
-        update_state_future = self.set_state_update_frequency(
-            freq=self.state_update_frequency
-        )
+
 
         self.battery_handler = await RequestHandler.create(
             manager=self.manager,
@@ -228,13 +225,14 @@ class WorldManager(manage.WorldManager):
             wait_for_subscriber=False
         )
 
-        # Wait for connections
-        await self.pose_subscriber.wait_for_connection()
+
         #await self.contact_subscriber.wait_for_connection()
-        await update_state_future
+
 
         if self.do_restore:
             await (self.restore_snapshot(self.do_restore))
+
+        # await self.pose_subscriber.wait_for_connection()
 
     async def disconnect(self):
         await super().disconnect()
