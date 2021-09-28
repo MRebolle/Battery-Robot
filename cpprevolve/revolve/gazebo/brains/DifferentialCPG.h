@@ -69,7 +69,7 @@ namespace revolve
           const ::gazebo::physics::ModelPtr &_model,
           const sdf::ElementPtr robot_config,
           const std::vector< MotorPtr > &_motors,
-          const std::vector< SensorPtr > &_sensors),
+          const std::vector< SensorPtr > &_sensors,
           std::shared_ptr<::revolve::gazebo::Battery> battery);
 
       public: void set_ode_matrix();
