@@ -638,20 +638,30 @@ class Population:
 
             if individual[environment].phenotype._behavioural_measurements is None:
                 behavioural_measurements = None
-                #logger.info(f'BATTERY LEVEL NONE!! ')
+                logger.info(f'BATTERY LEVEL NONE!! ')
             else:
                 behavioural_measurements = individual[environment].phenotype._behavioural_measurements.items()
-                #logger.info(f'BATTERY LEVEL {individual[environment].phenotype._behavioural_measurements.battery} ')
+                logger.info(f'BATTERY LEVEL {individual[environment].phenotype._behavioural_measurements.battery} ')
             conf = copy.deepcopy(self.conf)
 
             conf.fitness_function = conf.fitness_function[environment]
-            individual[environment].fitness =\
-                conf.fitness_function(behavioural_measurements, individual[environment])
+            combined_value = conf.fitness_function(behavioural_measurements, individual[environment])
+
+            if combined_value is not None:
+                if isinstance(combined_value, tuple):
+                    individual[environment].fitness, individual[environment].battery = \
+                        conf.fitness_function(behavioural_measurements, individual[environment])
+                else:
+                    individual[environment].fitness = None
+                    individual[environment].battery = None
 
             logger.info(f'Individual {individual[environment].phenotype.id} has a fitness of {individual[environment].fitness}')
+            logger.info(
+                f'Individual {individual[environment].phenotype.id} has a battery level of {individual[environment].battery}')
 
             if type_simulation == 'evolve':
                 self.conf.experiment_management.export_fitness(individual[environment], environment, gen_num)
+                self.conf.experiment_management.export_battery(individual[environment], environment, gen_num)
 
                 if not self.conf.all_settings.use_neat:
                     # again, to update and novelty and fitness

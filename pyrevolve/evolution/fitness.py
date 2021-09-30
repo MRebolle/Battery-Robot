@@ -20,12 +20,6 @@ def displacement(behavioural_measurements, robot):
     else:
         return None
 
-def displacement_velocity(behavioural_measurements, robot):
-    if behavioural_measurements is not None:
-        return behavioural_measurements['displacement_velocity']
-    else:
-        return None
-
 def online_old_revolve(robot_manager):
     """
     Fitness is proportional to both the displacement and absolute
@@ -123,6 +117,12 @@ def fast_novel(behavioural_measurements, robot):
 
         return fitness
 
+    else:
+        return None
+
+def displacement_velocity(behavioural_measurements, robot):
+    if behavioural_measurements is not None:
+        return (behavioural_measurements['displacement_velocity'], behavioural_measurements['battery'])
     else:
         return None
 

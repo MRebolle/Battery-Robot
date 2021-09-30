@@ -63,7 +63,7 @@ class Individual:
         It's saving the fitness into a file. The fitness can be a floating point number or None
         :param folder: folder where to save the fitness
         """
-        with open(f'{folder}/battery_{gen_num}.txt', 'w') as f:
+        with open(f'{folder}/battery_{gen_num}_{self.id}.txt', 'w') as f:
             f.write(str(self.battery))
 
     def export_consolidated_fitness(self, folder, gen_num):
