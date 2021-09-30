@@ -34,6 +34,7 @@ class ExperimentManagement:
             os.mkdir(self.dirpath+'/data_fullevolution/'+environment+'/fitness')
             os.mkdir(self.dirpath+'/data_fullevolution/'+environment+'/novelty')
             os.mkdir(self.dirpath+'/data_fullevolution/'+environment+'/phenotype_images')
+            os.mkdir(self.dirpath + '/data_fullevolution/' + environment +'/battery')
 
     def _experiment_folder(self):
         return self.dirpath
@@ -60,6 +61,10 @@ class ExperimentManagement:
     def export_fitness(self, individual, environment, gen_num):
         folder = os.path.join(self._data_folder(), environment, 'fitness')
         individual.export_fitness(folder, gen_num)
+
+    def export_battery(self, individual, environment, gen_num):
+        folder = os.path.join(self._data_folder(), environment, 'battery')
+        individual.export_battery(folder, gen_num)
 
     def export_consolidated_fitness(self, individual, gen_num):
         folder = os.path.join(self._data_folder(), 'consolidated_fitness')

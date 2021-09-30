@@ -13,6 +13,7 @@ class Individual:
         self.genotype = genotype
         self.phenotype = phenotype
         self.fitness = None
+        self.battery = None
         # novelty is a measure of diversity
         self.novelty = None
         self.novelty_pop = None
@@ -57,6 +58,14 @@ class Individual:
         with open(f'{folder}/fitness_{gen_num}_{self.id}.txt', 'w') as f:
             f.write(str(self.fitness))
 
+    def export_battery(self, folder, gen_num):
+        """
+        It's saving the fitness into a file. The fitness can be a floating point number or None
+        :param folder: folder where to save the fitness
+        """
+        with open(f'{folder}/battery_{gen_num}.txt', 'w') as f:
+            f.write(str(self.battery))
+
     def export_consolidated_fitness(self, folder, gen_num):
         with open(f'{folder}/consolidated_fitness_{gen_num}_{self.id}.txt', 'w') as f:
             f.write(str(self.consolidated_fitness))
@@ -78,6 +87,7 @@ class Individual:
         self.export_genotype(folder)
         self.export_phenotype(folder)
         self.export_fitness(folder)
+        self.export_battery(folder)
 
     def __repr__(self):
         return f'Individual_{self.id}({self.fitness})'

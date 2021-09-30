@@ -634,10 +634,14 @@ class Population:
 
             logger.info(f'Evaluation of Individual {individual[environment].phenotype.id} (gen {gen_num}) ')
 
+
+
             if individual[environment].phenotype._behavioural_measurements is None:
                 behavioural_measurements = None
+                #logger.info(f'BATTERY LEVEL NONE!! ')
             else:
                 behavioural_measurements = individual[environment].phenotype._behavioural_measurements.items()
+                #logger.info(f'BATTERY LEVEL {individual[environment].phenotype._behavioural_measurements.battery} ')
             conf = copy.deepcopy(self.conf)
 
             conf.fitness_function = conf.fitness_function[environment]

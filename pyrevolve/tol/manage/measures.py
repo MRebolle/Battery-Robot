@@ -2,6 +2,8 @@ import numpy as np
 
 from pyrevolve.SDF.math import Vector3
 from pyrevolve.util import Time
+from pyrevolve.angle import RobotManager
+from typing import Optional
 import math
 import sys
 
@@ -10,7 +12,7 @@ class BehaviouralMeasurements:
     """
         Calculates all the measurements and saves them in one object
     """
-    def __init__(self, robot_manager = None, robot = None):
+    def __init__(self, robot_manager:Optional[RobotManager] = None, robot = None):
         """
         :param robot_manager: Revolve Manager that holds the life of the robot
         :param robot: Revolve Bot for measurements relative to the robot morphology and brain
@@ -23,6 +25,7 @@ class BehaviouralMeasurements:
             self.displacement_velocity_hill = displacement_velocity_hill(robot_manager)
             self.head_balance = head_balance(robot_manager)
             self.contacts = None #contacts(robot_manager, robot)
+            self.battery = robot_manager.battery_level
         else:
             self.velocity = None
             self.displacement = None
@@ -30,6 +33,7 @@ class BehaviouralMeasurements:
             self.displacement_velocity_hill = None
             self.head_balance = None
             self.contacts = None
+            self.battery = None
 
     def items(self):
         dict = {
@@ -38,7 +42,8 @@ class BehaviouralMeasurements:
             'displacement_velocity': self.displacement_velocity,
             'displacement_velocity_hill': self.displacement_velocity_hill,
             'head_balance': self.head_balance,
-            'contacts': self.contacts
+            'contacts': self.contacts,
+            'battery' : self.battery
         }
         return dict
 
