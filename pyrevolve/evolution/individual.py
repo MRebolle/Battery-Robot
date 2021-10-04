@@ -14,6 +14,7 @@ class Individual:
         self.phenotype = phenotype
         self.fitness = None
         self.battery = None
+        self.objectives = None
         # novelty is a measure of diversity
         self.novelty = None
         self.novelty_pop = None

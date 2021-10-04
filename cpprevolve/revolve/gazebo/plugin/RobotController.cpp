@@ -315,7 +315,7 @@ void RobotController::LoadBattery(const sdf::ElementPtr _sdf)
       );
     } catch(std::invalid_argument &e) {
       std::clog << "Initial charge of the robot not set, using 0.0" << std::endl;
-      battery_initial_charge = 10.0;
+      battery_initial_charge = 20.0;
     }
     this->battery_.reset(new ::revolve::gazebo::Battery(battery_initial_charge)); // set initial battery (joules)
     this->battery_->UpdateParameters(batteryElem);

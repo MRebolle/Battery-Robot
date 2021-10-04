@@ -203,3 +203,11 @@ class ExperimentManagement:
             has_offspring = False
 
         return last_snapshot, has_offspring, last_id+1
+
+
+
+    def plot_path(self, data_source: str, filename: str, file_extension=".png", generation=0):
+        folder = os.path.join(self._data_folder(), data_source)
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+        return os.path.join(folder, filename + str(generation) + file_extension)

@@ -567,7 +567,7 @@ class Population:
                                                               self.conf.population_management_selector,
                                                               self.conf)
         else:
-            new_individuals = self.conf.population_management(self.individuals, new_individuals, self.conf)
+            new_individuals = self.conf.population_management(selection_pool, self.conf, gen_num)
 
         new_population = Population(self.conf, self.simulator_queue, self.analyzer_queue, self.next_robot_id)
         new_population.individuals = new_individuals
@@ -648,12 +648,14 @@ class Population:
             combined_value = conf.fitness_function(behavioural_measurements, individual[environment])
 
             if combined_value is not None:
-                if isinstance(combined_value, tuple):
-                    individual[environment].fitness, individual[environment].battery = \
-                        conf.fitness_function(behavioural_measurements, individual[environment])
-                else:
-                    individual[environment].fitness = None
-                    individual[environment].battery = None
+                individual[environment].fitness, individual[environment].battery = \
+                    combined_value
+                individual[environment].objectives = combined_value
+            else:
+                individual[environment].fitness = None
+                individual[environment].battery = None
+                individual[environment].objectives = [0.0, 20.0]
+
 
             logger.info(f'Individual {individual[environment].phenotype.id} has a fitness of {individual[environment].fitness}')
             logger.info(
