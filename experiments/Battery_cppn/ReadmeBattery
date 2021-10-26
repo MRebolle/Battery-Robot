@@ -1,0 +1,6 @@
+Battery Configuration:
+
+The initial battery charge is defined in three differnent files: (TODO: Central configuration)
+Battery-Robot/pyrevolve/evolution/population.py line 657
+Battery-Robot/pyrevolve/SDF/revolve_bot_sdf_builder.py line 309
+Battery-Robot/cpprevolve/revolve/gazebo/plugin/RobotController.cpp line 318
