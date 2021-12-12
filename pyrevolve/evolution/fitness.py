@@ -131,7 +131,7 @@ def displacement_velocity_hill(behavioural_measurements, robot):
     if behavioural_measurements is not None:
         fitness = behavioural_measurements['displacement_velocity_hill']
 
-        if fitness == 0 #or robot.phenotype._morphological_measurements.measurements_to_dict()['hinge_count'] == 0:
+        if fitness == 0: #or robot.phenotype._morphological_measurements.measurements_to_dict()['hinge_count'] == 0:
             fitness = -0.1
 
         elif fitness < 0:
